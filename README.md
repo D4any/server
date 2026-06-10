@@ -66,8 +66,13 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
   du Pi-hole **assumée et documentée** → voir [docs/pihole.md](docs/pihole.md).
 - [ ] (dette assumée) durcir avec la chaîne **`DOCKER-USER`** (filtrage admin des ports
   publiés par Docker — la méthode « prod »).
+- [x] ✅ **Reverse proxy nginx + TLS** (2026-06-10) : seul point d'entrée web (443),
+  vrai cert Let's Encrypt via `tailscale cert`, Pi-hole ne publie plus que le DNS
+  → voir [docs/nginx.md](docs/nginx.md). Composes versionnés dans [`infra/`](infra/).
+- [ ] **Renouvellement auto du cert TLS** (expire 2026-09-08) — exercice tout trouvé
+  pour l'étape « automatisation ».
 - [ ] **Services** suivants, étape par étape :
-  **reverse proxy nginx + TLS** (prochaine étape), détection (CrowdSec), monitoring, etc.
+  **monitoring** (prochaine étape), détection (CrowdSec), etc.
 - [ ] (option) brancher Docker `data-root` sur `/data/docker` (images encore sur la SD).
 
 ---
@@ -86,6 +91,10 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
 - [tailscale.md](docs/tailscale.md) — VPN mesh : IPs du tailnet, accès SSH, commandes
 - [ufw.md](docs/ufw.md) — pare-feu : politique, règles actives, méthode anti-lockout
 - [pihole.md](docs/pihole.md) — DNS filtrant : déploiement Docker, accès, gestion, sécurité
+- [nginx.md](docs/nginx.md) — reverse proxy : terminaison TLS, routage, ajout d'un service
+
+Les `docker-compose` des services sont versionnés dans [`infra/`](infra/)
+(source de vérité — le Pi exécute une copie).
 
 ---
 

@@ -18,7 +18,9 @@ requête qui correspond à sa liste de blocage (pub/tracker) reçoit une répons
 - `FTLCONF_dns_listeningMode: "ALL"` — **indispensable en Docker** : sinon Pi-hole
   prend les requêtes (qui arrivent par le réseau interne Docker) pour « étrangères »
   et les ignore. Sans ça, Pi-hole semble mort.
-- `ports 53:53 (tcp+udp)` — le DNS ; `80:80` — l'interface web d'admin.
+- `ports 53:53 (tcp+udp)` — le DNS uniquement. **Depuis le 2026-06-10, le port 80
+  n'est plus publié** : l'admin web passe par le reverse proxy nginx (HTTPS, port 443)
+  via le réseau Docker interne `proxy` → voir `docs/nginx.md`.
 - `volumes ./etc-pihole:/etc/pihole` — persistance hors du conteneur.
 - `FTLCONF_database_maxDBdays: "30"` — rétention de l'historique des requêtes = 30 jours
   (défaut 91). NB : Pi-hole borne par **durée**, pas par taille (pas de "X Go max").
@@ -28,9 +30,11 @@ requête qui correspond à sa liste de blocage (pub/tracker) reçoit une répons
 ## Accès
 | Quoi | Valeur |
 |---|---|
-| Interface admin (LAN) | `http://srv-cyber-infra.local/admin` |
-| Interface admin (Tailscale) | `http://100.80.45.108/admin` |
+| Interface admin (HTTPS, via nginx) | `https://srv-cyber-infra.tail46bedb.ts.net/admin` |
 | Mot de passe | dans `/data/docker/pihole/.env` |
+
+(Depuis le 2026-06-10 : plus d'accès HTTP direct — l'admin passe par le reverse
+proxy, donc nécessite d'être sur le tailnet. Le DNS :53, lui, reste publié.)
 
 ## Gestion (depuis `/data/docker/pihole/`)
 - État : `docker compose ps`

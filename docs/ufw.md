@@ -27,6 +27,8 @@ echo "ufw --force disable" | sudo at now + 10 minutes   # annuler après validat
 ```
 Et toujours garder une session ouverte + vérifier LAN **et** Tailscale avant de fermer.
 
-## À ajouter plus tard
-- **80/443** quand le reverse proxy (NPM) sera en place.
+## Notes
+- **Reverse proxy (2026-06-10)** : aucune règle UFW ajoutée pour le 443 — le port est
+  publié par Docker, qui contourne UFW (exposition assumée, cf. `docs/pihole.md`).
+  Les services derrière nginx ne publient aucun port → rien à ouvrir pour eux non plus.
 - Si tu changes de réseau/box : ajuster la règle LAN (`192.168.1.0/24`) au nouveau sous-réseau — ou simplement passer par Tailscale en attendant.
