@@ -27,10 +27,21 @@ requête qui correspond à sa liste de blocage (pub/tracker) reçoit une répons
   Limite la base + meilleure vie privée. La base vit sur `/data` (109 Go libres) → aucun
   risque de remplissage. Logs plats (`/var/log/pihole/`) gérés par `logrotate`.
 
+> **Servi sous `/pihole/admin`** (reverse proxy, depuis le 2026-06-25). Mécanisme :
+> `FTLCONF_webserver_paths_prefix: "/pihole"` → Pi-hole préfixe **toutes** ses URLs
+> (GUI **et** API) par `/pihole` ; nginx strippe ce préfixe (`location /pihole/` +
+> `proxy_pass http://pihole:80/`). **Indispensable** : l'API Pi-hole vit à `/api`,
+> qui sinon entre en collision avec Firefly (racine) → login web cassé (« wrong
+> password », car `/api/auth` partait chez Firefly).
+>
+> ⚠️ **Ne PAS toucher `webhome`** (reste `/admin/`). Le changer (essai `/pi-hole`)
+> casse la réécriture d'URL `.lp` de Pi-hole v6 → login en **404**. Le bon levier
+> pour un sous-chemin reverse-proxy, c'est `prefix`, pas `webhome`.
+
 ## Accès
 | Quoi | Valeur |
 |---|---|
-| Interface admin (HTTPS, via nginx) | `https://srv-cyber-infra.tail46bedb.ts.net/admin` |
+| Interface admin (HTTPS, via nginx) | `https://srv-cyber-infra.tail46bedb.ts.net/pihole/admin` |
 | Mot de passe | dans `/data/docker/pihole/.env` |
 
 (Depuis le 2026-06-10 : plus d'accès HTTP direct — l'admin passe par le reverse

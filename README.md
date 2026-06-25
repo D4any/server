@@ -76,6 +76,11 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
   → voir [docs/nginx.md](docs/nginx.md). Composes versionnés dans [`infra/`](infra/).
 - [ ] **Renouvellement auto du cert TLS** (expire 2026-09-08) — exercice tout trouvé
   pour l'étape « automatisation ».
+- [x] ✅ **Firefly III** (traceur de dépenses familial, **multi-utilisateur isolé**)
+  en conteneur Docker derrière nginx (TLS) : servi à la **racine `/`**, Pi-hole
+  repassé sous **`/pihole/admin`** (reverse-proxy *prefix*). Stack PostgreSQL + cron, **aucun port publié**, accès
+  **Tailscale only**, pas de connexion bancaire (saisie manuelle)
+  → voir [docs/firefly.md](docs/firefly.md) (2026-06-25).
 - [ ] **Services** suivants, étape par étape :
   **monitoring** (prochaine étape), détection (CrowdSec), etc.
 - [ ] (option) brancher Docker `data-root` sur `/data/docker` (images encore sur la SD).
@@ -97,6 +102,7 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
 - [ufw.md](docs/ufw.md) — pare-feu : politique, règles actives, méthode anti-lockout
 - [pihole.md](docs/pihole.md) — DNS filtrant : déploiement Docker, accès, gestion, sécurité
 - [nginx.md](docs/nginx.md) — reverse proxy : terminaison TLS, routage, ajout d'un service
+- [firefly.md](docs/firefly.md) — traceur de dépenses familial : Firefly III, multi-user isolé, déploiement, comptes
 
 Les `docker-compose` des services sont versionnés dans [`infra/`](infra/)
 (source de vérité — le Pi exécute une copie).

@@ -47,8 +47,12 @@ Contrainte : Tailscale n'émet des certs **que pour le nom exact de la machine**
 (pas de wildcard, donc pas de `pihole.xxx.ts.net`). → routage **par chemin** :
 | URL | Service |
 |---|---|
-| `https://srv-cyber-infra.tail46bedb.ts.net/admin` | Pi-hole (admin) |
+| `https://srv-cyber-infra.tail46bedb.ts.net/` | Firefly III (traceur de dépenses) |
+| `https://srv-cyber-infra.tail46bedb.ts.net/pihole/admin` | Pi-hole (admin) |
 | *(futur)* `/grafana`, … | monitoring, … |
+
+> Le `server{}` unique (port 443) vit dans `infra/nginx/conf.d/srv-cyber-infra.conf`
+> (a remplacé `pihole.conf` le 2026-06-25, quand Firefly a pris la racine `/`).
 
 ## Ajouter un service derrière le proxy (recette)
 1. Dans le compose du service : `networks: [default, proxy]`, **aucun** `ports:`.

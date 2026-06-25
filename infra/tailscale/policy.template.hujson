@@ -39,13 +39,16 @@
       "ip":  ["*"],
     },
 
-    // FAMILLE / invités → le serveur, UNIQUEMENT le DNS (Pi-hole)
-    //   port 53 en UDP (cas normal) + TCP (grosses réponses / DNSSEC).
-    //   => ni SSH, ni interface web, ni accès à tes appareils : non écrit = interdit.
+    // FAMILLE / invités → le serveur, DNS (Pi-hole) + web (Firefly)
+    //   port 53 UDP+TCP (DNS) et 443 TCP (HTTPS via nginx → Firefly).
+    //   On AJOUTE juste 443, on ne met PAS ip:["*"] : moindre privilège.
+    //   => toujours ni SSH, ni accès à tes appareils : non écrit = interdit.
+    //   NB : 443 expose aussi la page de login Pi-hole, mais sans le mot de passe
+    //   admin elle est inutilisable ; chaque appli garde sa propre authentification.
     {
       "src": ["group:famille"],
       "dst": ["tag:server-paris"],
-      "ip":  ["udp:53", "tcp:53"],
+      "ip":  ["udp:53", "tcp:53", "tcp:443"],
     },
   ],
 
