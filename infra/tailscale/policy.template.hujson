@@ -1,0 +1,55 @@
+// ============================================================================
+// Tailscale — Policy ACL (template anonymisé)  ·  syntaxe "grants" (moderne)
+// ============================================================================
+// ⚠️  CE FICHIER EST UN TEMPLATE : aucune identité réelle ici.
+//     La policy réelle (avec les vrais emails) vit UNIQUEMENT dans la console
+//     Tailscale (login.tailscale.com → Access controls), JAMAIS sur GitHub.
+//
+// Objectif : micro-segmentation. On remplace le "tout ouvert" par défaut
+//            (réseau plat) par du moindre privilège : tout converge vers le
+//            serveur, et rien ne parle à rien d'autre (architecture en étoile).
+//
+// Règle d'or : GENS = identité (email)  ·  SERVEUR = tag. On ne tague JAMAIS
+//              l'appareil d'une personne.
+//
+// Rappel syntaxe "grants" : src → dst, et les PORTS vont dans le champ "ip"
+//              (≠ ancienne syntaxe "acls" où le port se collait au dst).
+// ============================================================================
+{
+  // 1) Les GENS, par identité (remplacer par les vrais emails dans la console)
+  "groups": {
+    "group:admin":   ["you@github"],            // toi (admin du tailnet)
+    "group:famille": ["member@example.com"],    // invités : ajouter un email à la suite
+  },
+
+  // 2) Qui peut POSSÉDER le tag du serveur (= séparer le serveur des personnes)
+  "tagOwners": {
+    "tag:server-paris": ["group:admin"],
+  },
+
+  // 3) Les RÈGLES d'accès
+  "grants": [
+    // ADMIN (tous tes appareils) → le serveur uniquement, sur TOUT
+    //   couvre SSH (22), web/nginx (443), DNS (53).
+    //   dst = serveur seulement (pas "*") → tes machines ne se parlent PAS
+    //   entre elles ni aux appareils des invités.
+    {
+      "src": ["group:admin"],
+      "dst": ["tag:server-paris"],
+      "ip":  ["*"],
+    },
+
+    // FAMILLE / invités → le serveur, UNIQUEMENT le DNS (Pi-hole)
+    //   port 53 en UDP (cas normal) + TCP (grosses réponses / DNSSEC).
+    //   => ni SSH, ni interface web, ni accès à tes appareils : non écrit = interdit.
+    {
+      "src": ["group:famille"],
+      "dst": ["tag:server-paris"],
+      "ip":  ["udp:53", "tcp:53"],
+    },
+  ],
+
+  // NB : on a retiré le bloc "ssh" du template par défaut (= Tailscale SSH),
+  //      non utilisé ici. L'accès `ssh pi5-vpn` passe par le vrai sshd du Pi
+  //      (port 22), déjà autorisé par la 1re grant (ip:["*"]).
+}

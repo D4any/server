@@ -1,6 +1,6 @@
 # srv-cyber-infra — Homelab (Raspberry Pi 5)
 
-> Résumé de l'état actuel et notes importantes. Dernière mise à jour : **2026-06-10**.
+> Résumé de l'état actuel et notes importantes. Dernière mise à jour : **2026-06-25**.
 
 ---
 
@@ -55,6 +55,11 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
   **nouveau UUID `5b314913-f0f9-4aad-92a3-4b5382c0536a`** (à utiliser dans le futur `/etc/fstab` du Pi).
 - [x] ✅ `/data` monté sur le Pi (fstab, `noatime,nodev,nosuid,nofail`) → voir [docs/stockage-data.md](docs/stockage-data.md).
 - [x] ✅ **Tailscale** (expiration de clé désactivée) → [docs/tailscale.md](docs/tailscale.md)
+- [x] ✅ **ACL Tailscale — micro-segmentation** (2026-06-25, syntaxe `grants`) :
+  tailnet passé du « tout ouvert » au **moindre privilège** — admin → le Pi sur tout,
+  famille → DNS (53) uniquement, **zéro device-to-device**. Serveur = `tag:server-paris`,
+  gens = identité. Template anonymisé dans [`infra/tailscale/`](infra/tailscale/)
+  (vrais emails **uniquement** dans la console) → voir [docs/tailscale.md](docs/tailscale.md).
 - [x] ✅ **UFW** (deny in / allow out, SSH LAN + Tailscale) → [docs/ufw.md](docs/ufw.md)
 - [x] ✅ Arborescence `/data/{docker,apps,backups}` créée (2026-06-05).
 - [x] ✅ **Docker** installé (moteur + plugin compose, dépôt officiel Trixie),
