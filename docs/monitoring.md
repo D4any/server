@@ -134,6 +134,24 @@ ssh pi5-vpn 'sudo ss -tlnp | grep -E ":9090|:9100|:3000|:8080"'    # (rien : non
 - Cibles Prometheus : `docker exec prometheus wget -qO- localhost:9090/api/v1/targets`
 - Mise à jour : `docker compose pull && docker compose up -d` (volumes conservés).
 
+## Stockage — garde-fous (la SD est petite)
+Le `data-root` Docker est encore sur la **carte SD** (29 Go), pas sur `/data`
+(109 Go quasi vide). Deux postes peuvent remplir la SD → bornés :
+- **Base Prometheus** (le seul qui stocke des métriques) : rétention bornée en
+  **temps (15 j)** ET en **taille (1 Go)** via son `command`
+  (`--storage.tsdb.retention.time=15d`, `--storage.tsdb.retention.size=1GB`).
+  Le premier seuil atteint purge les vieux blocs. Grafana ne stocke qu'une petite
+  base SQLite (dashboards/réglages) ; les capteurs ne stockent rien.
+- **Logs Docker** (json-file, illimités par défaut) : rotation via l'anchor YAML
+  `x-logging` appliqué aux 4 services → **10 Mo × 3 = 30 Mo max par conteneur**.
+
+Vérif : `docker inspect prometheus --format '{{json .Args}}'` (flags de rétention)
+et `docker inspect <c> --format '{{.HostConfig.LogConfig.Config}}'` (rotation).
+
+**Fix durable (roadmap)** : basculer le `data-root` Docker sur `/data` (option
+listée dans le README) → images + volumes + logs sur la carte 109 Go au lieu de
+la SD 29 Go.
+
 ## Prochaines étapes (capteurs bonus + alerting)
 - **blackbox_exporter** : surveiller l'**expiration du cert TLS**
   (expire 2026-09-08) → Grafana alerte avant échéance.

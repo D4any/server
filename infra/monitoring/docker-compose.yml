@@ -12,12 +12,26 @@
 #   - "monitoring" PRIVÉ : prometheus + les capteurs + grafana s'y parlent.
 #   - "proxy" PARTAGÉ    : SEUL grafana y est aussi → joignable par nginx.
 # AUCUN `ports:` publié → rien ne contourne UFW. nginx reste l'unique entrée web.
+#
+# GARDE-FOUS STOCKAGE (la SD est petite) :
+#   - Prometheus : rétention bornée en TEMPS (15 j) ET en TAILLE (1 Go) — voir
+#     son `command`. Le premier seuil atteint purge les vieux blocs.
+#   - Logs Docker : rotation via l'anchor `x-logging` ci-dessous, appliqué à
+#     chaque service (sinon les fichiers json grossissent sans limite).
+
+# Anchor réutilisable : 10 Mo × 3 fichiers = 30 Mo max de logs par conteneur.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 services:
   grafana:
     image: grafana/grafana-oss:latest
     container_name: grafana
     restart: unless-stopped
+    logging: *default-logging
     env_file: .env
     environment:
       # Grafana est servi DERRIÈRE nginx sous le sous-chemin /grafana/.
@@ -39,6 +53,14 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     restart: unless-stopped
+    logging: *default-logging
+    # On REDÉFINIT le command par défaut → il faut donc REMETTRE config.file et
+    # storage.tsdb.path, puis AJOUTER les deux bornes de rétention.
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"   # purge ce qui dépasse 15 jours
+      - "--storage.tsdb.retention.size=1GB"    # ET plafond dur à 1 Go
     volumes:
       # Config en lecture seule (source de vérité versionnée à côté).
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
@@ -51,6 +73,7 @@ services:
     image: prom/node-exporter:latest
     container_name: node_exporter
     restart: unless-stopped
+    logging: *default-logging
     # Capteur de l'HÔTE. On lui monte /proc, /sys et / en LECTURE SEULE :
     # il observe le Pi sans pouvoir rien y modifier (moindre privilège).
     command:
@@ -69,6 +92,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     restart: unless-stopped
+    logging: *default-logging
     # Capteur des CONTENEURS. A besoin de voir le runtime Docker et le cgroupfs,
     # en LECTURE SEULE. /dev/kmsg : lecture des events kernel (recommandé).
     privileged: true
