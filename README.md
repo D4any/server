@@ -1,6 +1,6 @@
 # srv-cyber-infra — Homelab (Raspberry Pi 5)
 
-> Résumé de l'état actuel et notes importantes. Dernière mise à jour : **2026-06-25**.
+> Résumé de l'état actuel et notes importantes. Dernière mise à jour : **2026-06-27**.
 
 ---
 
@@ -81,8 +81,13 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
   repassé sous **`/pihole/admin`** (reverse-proxy *prefix*). Stack PostgreSQL + cron, **aucun port publié**, accès
   **Tailscale only**, pas de connexion bancaire (saisie manuelle)
   → voir [docs/firefly.md](docs/firefly.md) (2026-06-25).
+- [x] ✅ **Monitoring — observabilité** (2026-06-27) : socle **Prometheus + Grafana**
+  (4 conteneurs) derrière nginx (TLS), servi sous **`/grafana/`**, **Tailscale only**.
+  `node_exporter` (hôte : temp/disque/RAM/CPU) + `cadvisor` (par conteneur),
+  capteurs en lecture seule, **aucun port publié**, datasource provisionnée
+  (infra-as-code) → voir [docs/monitoring.md](docs/monitoring.md).
 - [ ] **Services** suivants, étape par étape :
-  **monitoring** (prochaine étape), détection (CrowdSec), etc.
+  capteurs bonus monitoring (cert TLS, Pi-hole), **détection** (CrowdSec), etc.
 - [ ] (option) brancher Docker `data-root` sur `/data/docker` (images encore sur la SD).
 
 ---
@@ -103,6 +108,7 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
 - [pihole.md](docs/pihole.md) — DNS filtrant : déploiement Docker, accès, gestion, sécurité
 - [nginx.md](docs/nginx.md) — reverse proxy : terminaison TLS, routage, ajout d'un service
 - [firefly.md](docs/firefly.md) — traceur de dépenses familial : Firefly III, multi-user isolé, déploiement, comptes
+- [monitoring.md](docs/monitoring.md) — observabilité : Prometheus + Grafana, 4 conteneurs, datasource provisionnée, dashboards
 
 Les `docker-compose` des services sont versionnés dans [`infra/`](infra/)
 (source de vérité — le Pi exécute une copie).
