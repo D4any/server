@@ -129,6 +129,24 @@ ssh pi5-vpn 'sudo ss -tlnp | grep -E ":9090|:9100|:3000|:8080"'    # (rien : non
    - **1860** — *Node Exporter Full* (hôte : temp, disque, RAM, CPU du Pi).
    - **14282** — *cAdvisor* (métriques par conteneur).
 
+## Gotcha — RAM par conteneur à 0 : cgroup mémoire désactivé (corrigé 2026-06-29)
+Au départ cAdvisor remontait **0** sur la RAM par conteneur. Cause : sur Raspberry
+Pi OS le **contrôleur cgroup `memory`** est coupé d'usine (le firmware injecte
+`cgroup_disable=memory` au boot), donc les fichiers `memory.current` des conteneurs
+**n'existent pas** → cAdvisor n'a rien à lire.
+
+**Fix** (sur le Pi, nécessite reboot) : ajouter à la **fin de l'unique ligne** de
+`/boot/firmware/cmdline.txt` :
+```
+cgroup_enable=memory cgroup_memory=1
+```
+(backup `cmdline.txt.bak-2026-06-29` fait avant ; `cgroup_enable=memory` l'emporte
+sur le `cgroup_disable=memory` du firmware). Après `sudo reboot`, vérifier :
+```bash
+ssh pi5-vpn 'cat /sys/fs/cgroup/cgroup.controllers'   # doit contenir "memory"
+```
+→ `memory` apparaît, `memory.current` existe par conteneur, Grafana affiche la RAM.
+
 ## Gestion (depuis `/data/docker/monitoring/`)
 - État : `docker compose ps` · Logs : `docker compose logs -f grafana`
 - Cibles Prometheus : `docker exec prometheus wget -qO- localhost:9090/api/v1/targets`

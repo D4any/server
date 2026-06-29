@@ -86,6 +86,13 @@ accessible de façon **résiliente** par `ssh pi5`. Base saine, hardening à ven
   `node_exporter` (hôte : temp/disque/RAM/CPU) + `cadvisor` (par conteneur),
   capteurs en lecture seule, **aucun port publié**, datasource provisionnée
   (infra-as-code) → voir [docs/monitoring.md](docs/monitoring.md).
+- [x] ✅ **Fix cgroup mémoire** (2026-06-29) : activé `cgroup_enable=memory cgroup_memory=1`
+  dans `/boot/firmware/cmdline.txt` (+ reboot) — coupé d'usine sur Raspberry Pi OS.
+  cAdvisor remonte enfin la **RAM par conteneur** (affichait `0` avant)
+  → voir [docs/monitoring.md](docs/monitoring.md).
+- [x] ✅ **Schéma des flux réseau** (2026-06-29) : cartographie vérifiée des flux
+  (ingress :443/:53/:22, segmentation en tiers privés, jonctions contrôlées)
+  → voir [docs/flux-reseau.md](docs/flux-reseau.md).
 - [ ] **Services** suivants, étape par étape :
   capteurs bonus monitoring (cert TLS, Pi-hole), **détection** (CrowdSec), etc.
 - [ ] (option) brancher Docker `data-root` sur `/data/docker` (images encore sur la SD).
